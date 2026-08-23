@@ -1,232 +1,1730 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a1024">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>我的投资工具</title>
-<style>
-:root {
-  --bg-1: #0a1024;
-  --bg-2: #1a2540;
-  --neon-cyan: #00f0ff;
-  --neon-orange: #ff9500;
-  --neon-pink: #ff3c8c;
-  --neon-green: #00f5c8;
-  --neon-yellow: #ffd000;
-  --text-bright: #e0e8ff;
-  --text-dim: #93A3BD;
-  --card-bg: rgba(20, 26, 56, 0.7);
-  --card-line: rgba(0, 240, 255, 0.25);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  min-height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
-  background: var(--bg-1);
-  color: var(--text-bright);
-  overflow-x: hidden;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(255,149,0,0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(0,245,200,0.10) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(255,60,140,0.08) 0%, transparent 70%);
-  z-index: 0;
-  pointer-events: none;
-}
-/* 头部 */
-.hero {
-  position: relative;
-  z-index: 1;
-  padding: 50px 20px 20px;
-  text-align: center;
-}
-.hero-title {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 3px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 16px rgba(0, 240, 255, 0.7), 0 0 32px rgba(0, 240, 255, 0.3);
-  margin-bottom: 6px;
-}
-.hero-sub {
-  font-size: 12px;
-  color: var(--text-dim);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-}
-/* 时间 */
-.clock {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  font-family: monospace;
-  font-size: 11px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 6px rgba(0, 240, 255, 0.5);
-  margin-bottom: 18px;
-}
-/* 卡片网格 */
-.cards {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  padding: 0 16px;
-  max-width: 720px;
-  margin: 0 auto;
-}
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 180px;
-  padding: 20px 14px;
-  border-radius: 24px;
-  background: var(--card-bg);
-  border: 2.5px solid var(--c1);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  overflow: hidden;
-  isolation: isolate;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-/* 旋转彩边 */
-.card::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c3), var(--c1));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: ringRotate 5s linear infinite;
-  z-index: -1;
-  filter: blur(0.4px);
-}
-@keyframes ringRotate { to { transform: rotate(360deg); } }
-/* 内部柔光 */
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-.card:active { transform: scale(0.97); }
-.card.fund {
-  --c1: #ff9500;
-  --c2: #ffd000;
-  --c3: #ff7ab0;
-  box-shadow: 0 0 22px rgba(255, 149, 0, 0.45), inset 0 0 24px rgba(255, 149, 0, 0.12);
-}
-.card.stock {
-  --c1: #00f5c8;
-  --c2: #4dffe4;
-  --c3: #88e8d8;
-  box-shadow: 0 0 22px rgba(0, 245, 200, 0.45), inset 0 0 24px rgba(0, 245, 200, 0.12);
-}
-.card-icon {
-  position: relative;
-  z-index: 1;
-  font-size: 44px;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 0 12px var(--c1));
-}
-.card-title {
-  position: relative;
-  z-index: 1;
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--c2);
-  text-shadow: 0 0 12px var(--c1);
-  letter-spacing: 2px;
-  margin-bottom: 4px;
-}
-.card-desc {
-  position: relative;
-  z-index: 1;
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.5px;
-  text-align: center;
-  line-height: 1.4;
-}
-.card-hint {
-  position: relative;
-  z-index: 1;
-  margin-top: 10px;
-  font-size: 10px;
-  color: var(--c1);
-  letter-spacing: 1px;
-  opacity: 0.85;
-}
-/* 提示 */
-.footer {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 30px 20px;
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  opacity: 0.6;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 量化回测 · 实战参谋</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --line: rgba(0, 0, 0, 0.08);
+            --text: #1a202c;
+            --text-soft: #4a5568;
+            --text-mute: #a0aec0;
+            --up: #e53e3e;
+            --down: #38a169;
+            --accent: #3182ce;
+            --warn: #d69e2e;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 20px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .topbar .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--text);
+        }
+        .topbar .brand .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3182ce, #2b6cb0);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .topbar .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .topbar .actions .badge {
+            font-size: 11px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            background: rgba(49, 130, 206, 0.1);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .card .sub {
+            font-size: 12px;
+            color: var(--text-mute);
+            font-weight: 400;
+            margin-left: auto;
+        }
+
+        /* 输入区 */
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+            align-items: flex-end;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1 1 140px;
+            min-width: 100px;
+        }
+        .input-group label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-soft);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .input-group input,
+        .input-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--bg);
+            color: var(--text);
+            transition: 0.2s;
+            width: 100%;
+        }
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+        }
+        .input-group input[type="date"] {
+            cursor: pointer;
+        }
+        .btn {
+            padding: 8px 24px;
+            border: 0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #2b6cb0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-soft);
+            border: 1px solid var(--line);
+        }
+        .btn-outline:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .btn-success {
+            background: var(--down);
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        /* 参数折叠 */
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px 20px;
+            margin-top: 8px;
+        }
+        .param-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .param-item .label {
+            font-size: 10px;
+            color: var(--text-mute);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+        }
+        .param-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+        }
+        .param-item input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: var(--bg);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 4px;
+        }
+        .param-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .param-item .range-val {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+        }
+
+        /* 绩效卡片 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+        .metric-box {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: center;
+            border: 1px solid var(--line);
+        }
+        .metric-box .k {
+            font-size: 10px;
+            color: var(--text-mute);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+        }
+        .metric-box .v {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'DM Serif Display', serif;
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+        .metric-box .v.good {
+            color: var(--down);
+        }
+        .metric-box .v.bad {
+            color: var(--up);
+        }
+        .metric-box .v.warn {
+            color: var(--warn);
+        }
+        .metric-box .d {
+            font-size: 10px;
+            color: var(--text-mute);
+            margin-top: 2px;
+        }
+
+        /* 图表 */
+        .chart-box {
+            width: 100%;
+            height: 420px;
+        }
+        .chart-box.small {
+            height: 200px;
+        }
+
+        /* 交易明细 */
+        .trade-table-wrap {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+        .trade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .trade-table th {
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-soft);
+            border-bottom: 2px solid var(--line);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .trade-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--line);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+        .trade-table .buy {
+            color: var(--up);
+        }
+        .trade-table .sell {
+            color: var(--down);
+        }
+        .trade-table .profit {
+            color: var(--down);
+        }
+        .trade-table .loss {
+            color: var(--up);
+        }
+
+        .status-text {
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .status-text .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-soft);
+        }
+        .tag.buy {
+            background: rgba(229, 62, 62, 0.15);
+            color: var(--up);
+        }
+        .tag.sell {
+            background: rgba(56, 161, 105, 0.15);
+            color: var(--down);
+        }
+        .tag.hold {
+            background: rgba(214, 158, 46, 0.12);
+            color: var(--warn);
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-mute);
+            font-size: 16px;
+            gap: 16px;
+            flex-direction: column;
+        }
+        .loading-overlay .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--line);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-mute);
+        }
+        .empty-state svg {
+            opacity: 0.4;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a202c;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            z-index: 999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            text-align: center;
+            font-weight: 500;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .input-row {
+                flex-direction: column;
+            }
+            .input-group {
+                flex: 1 1 100%;
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .chart-box {
+                height: 280px;
+            }
+            .chart-box.small {
+                height: 160px;
+            }
+            .topbar .brand {
+                font-size: 16px;
+            }
+            .param-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* 滚动条 */
+        .trade-table-wrap::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .trade-table-wrap::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
 
-<section class="hero">
-  <h1 class="hero-title">📊 我的投资工具</h1>
-  <div class="hero-sub">Investment Toolkit</div>
-</section>
+    <div id="toast" class="toast"></div>
 
-<div class="clock" id="clock"></div>
+    <div class="wrap">
+        <!-- 顶栏 -->
+        <div class="topbar">
+            <div class="brand">
+                <div class="logo">📊</div>
+                <span>量化回测 · 实战参谋</span>
+                <span style="font-size:12px;color:var(--text-mute);font-weight:400;margin-left:4px;">v2.0</span>
+            </div>
+            <div class="actions">
+                <span class="badge" id="dataStatus">⚡ 就绪</span>
+            </div>
+        </div>
 
-<div class="cards">
-  <a class="card fund" href="https://sy644.github.io/fund-grid-private/" target="_blank" rel="noopener">
-    <div class="card-icon">💰</div>
-    <div class="card-title">基金加仓</div>
-    <div class="card-desc">基金净值追踪<br>加仓档位 · 收益计算</div>
-    <div class="card-hint">点击进入 →</div>
-  </a>
+        <!-- 配置区 -->
+        <div class="card">
+            <div class="flex-between">
+                <h3>⚙️ 回测配置</h3>
+                <span class="sub" id="stockNameDisplay">输入股票代码</span>
+            </div>
+            <div class="input-row">
+                <div class="input-group" style="flex:1 1 160px;">
+                    <label>📈 股票代码</label>
+                    <input type="text" id="stockCode" value="000001" placeholder="如 000001" style="font-family:'JetBrains Mono',monospace;">
+                </div>
+                <div class="input-group" style="flex:1 1 140px;">
+                    <label>📅 开始日期</label>
+                    <input type="date" id="startDate" value="2023-01-01">
+                </div>
+                <div class="input-group" style="flex:1 1 140px;">
+                    <label>📅 结束日期</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="input-group" style="flex:1 1 120px;">
+                    <label>💰 初始资金</label>
+                    <input type="number" id="initialCapital" value="100000" step="10000" style="font-family:'JetBrains Mono',monospace;">
+                </div>
+                <div class="input-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" id="btnRunBacktest">▶ 运行回测</button>
+                </div>
+                <div class="input-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-outline" id="btnToggleParams">📐 参数</button>
+                </div>
+            </div>
+            <!-- 高级参数 (折叠) -->
+            <div id="paramPanel" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);">
+                <div class="param-grid">
+                    <div class="param-item">
+                        <span class="label">趋势权重</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramTrendWeight" min="0.5" max="2.0" step="0.1" value="1.0">
+                            <span class="range-val" id="paramTrendWeightVal">1.0</span>
+                        </div>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">量价权重</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramVpWeight" min="0.5" max="2.0" step="0.1" value="1.0">
+                            <span class="range-val" id="paramVpWeightVal">1.0</span>
+                        </div>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">仓位系数</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramPositionScale" min="0.3" max="1.5" step="0.05" value="1.0">
+                            <span class="range-val" id="paramPositionScaleVal">1.0</span>
+                        </div>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">止损倍数 (ATR)</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramStopMult" min="1.0" max="4.0" step="0.1" value="2.0">
+                            <span class="range-val" id="paramStopMultVal">2.0</span>
+                        </div>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">手续费率</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramFee" min="0.0" max="0.5" step="0.01" value="0.10">
+                            <span class="range-val" id="paramFeeVal">0.10%</span>
+                        </div>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">滑点</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="range" id="paramSlippage" min="0.0" max="0.5" step="0.01" value="0.05">
+                            <span class="range-val" id="paramSlippageVal">0.05%</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;font-size:11px;color:var(--text-mute);">
+                    💡 参数调整后点击「运行回测」生效
+                </div>
+            </div>
+        </div>
 
-  <a class="card stock" href="https://sy644.github.io/irain/kline/stock.html?code=sh600519" target="_blank" rel="noopener">
-    <div class="card-icon">📈</div>
-    <div class="card-title">自选股 K线</div>
-    <div class="card-desc">实时行情 · 技术指标<br>MA · MACD · RSI · KDJ</div>
-    <div class="card-hint">点击进入 →</div>
-  </a>
-</div>
+        <!-- 状态 / 进度 -->
+        <div id="statusArea" style="display:none;" class="card">
+            <div class="status-text" id="statusText">⏳ 加载数据中...</div>
+        </div>
 
-<footer class="footer">
-  点击卡片在新页面打开 · 返回浏览器历史可回此页
-</footer>
+        <!-- 结果区 -->
+        <div id="resultArea" style="display:none;">
 
-<script>
-function updateClock() {
-  const d = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const week = ['日','一','二','三','四','五','六'][d.getDay()];
-  document.getElementById('clock').textContent =
-    `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} 周${week} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-updateClock();
-setInterval(updateClock, 1000);
-</script>
+            <!-- 绩效指标 -->
+            <div class="card">
+                <div class="flex-between">
+                    <h3>📈 绩效总览</h3>
+                    <span class="sub" id="tradeCount">交易: 0 笔</span>
+                </div>
+                <div class="metrics-grid" id="metricsGrid">
+                    <div class="metric-box"><div class="k">总收益率</div><div class="v" id="m-totalReturn">—</div><div class="d" id="m-totalReturnD">—</div></div>
+                    <div class="metric-box"><div class="k">年化收益</div><div class="v" id="m-annReturn">—</div><div class="d" id="m-annReturnD">—</div></div>
+                    <div class="metric-box"><div class="k">夏普比率</div><div class="v" id="m-sharpe">—</div><div class="d" id="m-sharpeD">—</div></div>
+                    <div class="metric-box"><div class="k">最大回撤</div><div class="v" id="m-maxDrawdown">—</div><div class="d" id="m-maxDrawdownD">—</div></div>
+                    <div class="metric-box"><div class="k">胜率</div><div class="v" id="m-winRate">—</div><div class="d" id="m-winRateD">—</div></div>
+                    <div class="metric-box"><div class="k">盈亏比</div><div class="v" id="m-profitFactor">—</div><div class="d" id="m-profitFactorD">—</div></div>
+                    <div class="metric-box"><div class="k">卡玛比率</div><div class="v" id="m-calmar">—</div><div class="d" id="m-calmarD">—</div></div>
+                    <div class="metric-box"><div class="k">索提诺比</div><div class="v" id="m-sortino">—</div><div class="d" id="m-sortinoD">—</div></div>
+                </div>
+            </div>
+
+            <!-- 净值曲线 -->
+            <div class="card">
+                <h3>📉 净值曲线 <span class="sub" id="chartSub">—</span></h3>
+                <div class="chart-box" id="equityChart"></div>
+            </div>
+
+            <!-- 买卖点 + 信号分布 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div class="card">
+                    <h3>📍 买卖点标注</h3>
+                    <div class="chart-box small" id="signalChart"></div>
+                </div>
+                <div class="card">
+                    <h3>📊 信号分布</h3>
+                    <div class="chart-box small" id="signalDistChart"></div>
+                </div>
+            </div>
+
+            <!-- 交易明细 -->
+            <div class="card">
+                <div class="flex-between">
+                    <h3>📋 交易明细</h3>
+                    <span class="sub" id="tradeDetailCount">共 0 笔</span>
+                </div>
+                <div class="trade-table-wrap" id="tradeTableWrap">
+                    <table class="trade-table">
+                        <thead>
+                            <tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>金额</th><th>累计盈亏</th><th>信号</th></tr>
+                        </thead>
+                        <tbody id="tradeTableBody">
+                            <tr><td colspan="7" style="text-align:center;color:var(--text-mute);">暂无交易</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 初始空状态 -->
+        <div id="emptyState" class="card">
+            <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M8 4v2M16 4v2M2 10h20"/>
+                </svg>
+                <p style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:4px;">准备回测</p>
+                <p style="font-size:13px;">输入股票代码，点击「运行回测」开始策略回测</p>
+                <p style="font-size:12px;margin-top:8px;color:var(--text-mute);">示例: 000001 (平安银行) · 600519 (贵州茅台)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // 工具函数
+        // ================================================================
+        function toast(msg, duration = 2500) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.remove('show'), duration);
+        }
+
+        function $(id) { return document.getElementById(id); }
+
+        function fmt(v, d = 2) { return Number(v).toFixed(d); }
+
+        function fmtPct(v) { return (v * 100).toFixed(2) + '%'; }
+
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        // ================================================================
+        // 数据获取
+        // ================================================================
+        async function fetchKLine(code, count = 500) {
+            const url =
+                `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${encodeURIComponent(code)},day,,,${count},qfq`;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+            try {
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeout);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.code !== 0) throw new Error('接口返回错误');
+                const key = Object.keys(data.data)[0];
+                const arr = (data.data[key] && (data.data[key].qfqday || data.data[key].day)) || [];
+                if (!arr.length) throw new Error('无数据');
+                return arr.map(row => ({
+                    date: row[0],
+                    open: +row[1],
+                    close: +row[2],
+                    high: +row[3],
+                    low: +row[4],
+                    volume: +row[5],
+                })).filter(r => r.date && !isNaN(r.open)).sort((a, b) => a.date.localeCompare(b.date));
+            } catch (err) {
+                clearTimeout(timeout);
+                // 备用新浪接口
+                try {
+                    const url2 =
+                        `https://quotes.sina.cn/cn/api/json_v2.php/IFengService.getKLineData?symbol=${code}&scale=240&ma=no&datalen=${count}`;
+                    const res2 = await fetch(url2, { signal: AbortSignal.timeout(8000) });
+                    if (!res2.ok) throw new Error('备用接口失败');
+                    const data2 = await res2.json();
+                    if (!data2 || !data2.length) throw new Error('备用数据为空');
+                    return data2.map(row => ({
+                        date: row.day,
+                        open: +row.open,
+                        close: +row.close,
+                        high: +row.high,
+                        low: +row.low,
+                        volume: +row.volume || 0,
+                    })).filter(r => r.date && !isNaN(r.open)).sort((a, b) => a.date.localeCompare(b.date));
+                } catch (err2) {
+                    throw new Error(`无法获取 ${code} 的K线数据: ${err.message}`);
+                }
+            }
+        }
+
+        // ================================================================
+        // 技术指标 (从原模型提取)
+        // ================================================================
+        function calcRSI(closes, period = 14) {
+            if (closes.length < period + 1) return 50;
+            let gain = 0,
+                loss = 0;
+            for (let i = 1; i <= period; i++) {
+                const diff = closes[closes.length - period + i - 1] - closes[closes.length - period + i - 2];
+                if (diff > 0) gain += diff;
+                else loss -= diff;
+            }
+            let avgGain = gain / period,
+                avgLoss = loss / period;
+            for (let i = period + 1; i < closes.length; i++) {
+                const diff = closes[i] - closes[i - 1];
+                avgGain = (avgGain * (period - 1) + (diff > 0 ? diff : 0)) / period;
+                avgLoss = (avgLoss * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+            }
+            if (avgLoss === 0) return 100;
+            return 100 - (100 / (1 + avgGain / avgLoss));
+        }
+
+        function calcMACD(closes) {
+            const ema = (arr, n) => {
+                const k = 2 / (n + 1);
+                let e = arr[0];
+                for (let i = 1; i < arr.length; i++) e = arr[i] * k + e * (1 - k);
+                return e;
+            };
+            const dif = ema(closes, 12) - ema(closes, 26);
+            return { macd: dif, signal: dif * 0.2, hist: dif * 0.8 };
+        }
+
+        function calcKDJ(closes, highs, lows, n = 9) {
+            if (closes.length < n) return { k: 50, d: 50, j: 50 };
+            let k = 50,
+                d = 50;
+            for (let i = closes.length - n; i < closes.length; i++) {
+                const hi = Math.max(...highs.slice(Math.max(0, i - n + 1), i + 1));
+                const lo = Math.min(...lows.slice(Math.max(0, i - n + 1), i + 1));
+                const r = hi === lo ? 50 : (closes[i] - lo) / (hi - lo) * 100;
+                k = 2 / 3 * k + 1 / 3 * r;
+                d = 2 / 3 * d + 1 / 3 * k;
+            }
+            return { k, d, j: 3 * k - 2 * d };
+        }
+
+        function calcBOLL(closes, n = 20) {
+            if (closes.length < n) {
+                const c = closes[closes.length - 1];
+                return { upper: c * 1.02, mid: c, lower: c * 0.98 };
+            }
+            const slice = closes.slice(-n);
+            const mid = slice.reduce((a, b) => a + b, 0) / n;
+            let s = 0;
+            for (const v of slice) { const d = v - mid;
+                s += d * d; }
+            const std = Math.sqrt(s / n);
+            return { upper: mid + 2 * std, mid, lower: mid - 2 * std };
+        }
+
+        function calcATR(highs, lows, closes, n = 14) {
+            if (highs.length < n + 1) return (highs[highs.length - 1] - lows[lows.length - 1]) * 0.02;
+            const tr = new Float64Array(highs.length - 1);
+            for (let i = 1; i < highs.length; i++) {
+                tr[i - 1] = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i - 1]), Math.abs(lows[i] - closes[i -
+                1]));
+            }
+            if (tr.length < n) return tr.reduce((a, b) => a + b, 0) / tr.length;
+            let atrVal = 0;
+            for (let i = 0; i < n; i++) atrVal += tr[i];
+            atrVal /= n;
+            for (let i = n; i < tr.length; i++) atrVal = (atrVal * (n - 1) + tr[i]) / n;
+            return atrVal;
+        }
+
+        // ================================================================
+        // 核心策略：量价加权评分 (从原模型提取并适配回测)
+        // ================================================================
+        function generateSignal(data, params) {
+            const n = data.length;
+            if (n < 30) return null;
+
+            const closes = data.map(d => d.close);
+            const highs = data.map(d => d.high);
+            const lows = data.map(d => d.low);
+            const opens = data.map(d => d.open);
+            const vols = data.map(d => d.volume);
+
+            const price = closes[n - 1];
+            const prev = closes[n - 2] || price;
+
+            // 均线
+            let s5 = 0,
+                s10 = 0,
+                s20 = 0,
+                s60 = 0;
+            for (let i = 0; i < n; i++) {
+                const v = closes[i];
+                if (i >= n - 5) s5 += v;
+                if (i >= n - 10) s10 += v;
+                if (i >= n - 20) s20 += v;
+                if (i >= n - 60) s60 += v;
+            }
+            const ma5 = s5 / Math.min(5, n);
+            const ma10 = s10 / Math.min(10, n);
+            const ma20 = s20 / Math.min(20, n);
+            const ma60 = n >= 60 ? s60 / 60 : ma20;
+
+            const changePct = (price - prev) / prev * 100;
+            const pct5 = n > 5 ? (price - closes[n - 5]) / closes[n - 5] * 100 : 0;
+
+            // 趋势评分
+            let score = 0;
+            const tw = params.trendWeight || 1.0;
+            if (price > ma5) score += 1.5 * tw;
+            else score -= 1.5 * tw;
+            if (price > ma20) score += 1.2 * tw;
+            else score -= 1.2 * tw;
+            if (price > ma60) score += 0.8 * tw;
+            else score -= 0.8 * tw;
+            if (ma5 > ma20) score += 0.5 * tw;
+            else score -= 0.5 * tw;
+            if (ma20 > ma60) score += 0.3 * tw;
+            else score -= 0.3 * tw;
+            if (changePct > 1) score += 0.5 * tw;
+            else if (changePct < -1) score -= 0.5 * tw;
+            if (pct5 > 3) score += 1 * tw;
+            else if (pct5 < -3) score -= 1 * tw;
+
+            // ---- 量价因子 ----
+            const vw = params.vpWeight || 1.0;
+            let vpScore = 0;
+
+            // OBV 序列
+            const obvSeries = new Array(n).fill(0);
+            for (let i = 0; i < n; i++) {
+                if (i === 0) { obvSeries[i] = 0; continue; }
+                if (closes[i] > closes[i - 1]) obvSeries[i] = obvSeries[i - 1] + vols[i];
+                else if (closes[i] < closes[i - 1]) obvSeries[i] = obvSeries[i - 1] - vols[i];
+                else obvSeries[i] = obvSeries[i - 1];
+            }
+            const obvCurrent = obvSeries[n - 1];
+            const obv20Slice = obvSeries.slice(-20);
+            const obv60Slice = obvSeries.slice(-60);
+            const obvPeak20 = Math.max(...obv20Slice);
+            const obvTrough20 = Math.min(...obv20Slice);
+            const obvPeak60 = Math.max(...obv60Slice);
+            const obvTrough60 = Math.min(...obv60Slice);
+            const obvPos20 = obvPeak20 > obvTrough20 ? (obvCurrent - obvTrough20) / (obvPeak20 - obvTrough20) : 0.5;
+            const obvPos60 = obvPeak60 > obvTrough60 ? (obvCurrent - obvTrough60) / (obvPeak60 - obvTrough60) : 0.5;
+
+            // OBV 斜率
+            let obvSlope8 = 0;
+            if (n >= 9) {
+                let cur = 0,
+                    past = 0;
+                for (let i = 0; i < n; i++) {
+                    if (i >= n - 8) cur += (closes[i] > (closes[i - 1] || closes[i]) ? vols[i] : (closes[i] < (closes[i -
+                        1] || closes[i]) ? -vols[i] : 0));
+                    if (i === n - 9) past = cur;
+                }
+                obvSlope8 = (cur - past) / (Math.abs(past) + 1);
+            }
+            const isObvUp = obvSlope8 > 0.01;
+            const isObvDown = obvSlope8 < -0.01;
+
+            const lastVol = vols[n - 1];
+            const avgVol5 = vols.slice(-5).reduce((a, b) => a + b, 0) / 5;
+            const avgVol20 = vols.slice(-20).reduce((a, b) => a + b, 0) / 20;
+            const volMedian20 = (() => {
+                const arr = vols.slice(-20).slice().sort((a, b) => a - b);
+                return arr[Math.floor(arr.length / 2)];
+            })();
+            const recentHigh20 = Math.max(...highs.slice(-20));
+            const recentLow20 = Math.min(...lows.slice(-20));
+            const pricePos20 = recentHigh20 > recentLow20 ? (price - recentLow20) / (recentHigh20 - recentLow20) : 0.5;
+            const priceSlope5 = n > 5 ? (price - closes[n - 5]) / closes[n - 5] : 0;
+            const priceUp1d = closes[n - 1] > closes[n - 2];
+            const isBreakHigh = price > recentHigh20;
+            const isBigVolNow = lastVol > volMedian20 * 1.5;
+            const isShrinkingVol = avgVol5 < avgVol20 * 0.85;
+            const pullbackFromHigh = (recentHigh20 - price) / recentHigh20;
+
+            // 量价因子累加
+            let vpFactors = [];
+            if (isBreakHigh && isBigVolNow) {
+                const bonus = obvPos20 > 0.6 ? 2.0 : 1.5;
+                vpScore += bonus * vw;
+                vpFactors.push(`放量突破+${(bonus*vw).toFixed(1)}`);
+            }
+            if (avgVol5 > avgVol20 * 1.1 && priceUp1d) {
+                vpScore += 1.0 * vw;
+                vpFactors.push(`温和放量+${(1.0*vw).toFixed(1)}`);
+            }
+            if (pullbackFromHigh > 0.02 && pullbackFromHigh < 0.12 && isShrinkingVol && !priceUp1d) {
+                vpScore += 0.8 * vw;
+                vpFactors.push(`缩量洗盘+${(0.8*vw).toFixed(1)}`);
+            }
+            if (isObvUp && priceSlope5 > 0.01) {
+                vpScore += 0.5 * vw;
+                vpFactors.push(`OBV流入+${(0.5*vw).toFixed(1)}`);
+            }
+            if (pricePos20 > 0.85 && obvPos20 < 0.4 && obvPos60 < 0.4) {
+                vpScore -= 2.0 * vw;
+                vpFactors.push(`高位背离-${(2.0*vw).toFixed(1)}`);
+            } else if (pricePos20 > 0.85 && obvPos20 < 0.5) {
+                vpScore -= 1.0 * vw;
+                vpFactors.push(`疑似背离-${(1.0*vw).toFixed(1)}`);
+            }
+            if (lastVol > avgVol20 * 1.5 && !priceUp1d && pricePos20 > 0.5) {
+                vpScore -= 1.0 * vw;
+                vpFactors.push(`放量滞涨-${(1.0*vw).toFixed(1)}`);
+            }
+            if (isObvDown && pricePos20 > 0.7) {
+                vpScore -= 0.5 * vw;
+                vpFactors.push(`OBV流出-${(0.5*vw).toFixed(1)}`);
+            }
+
+            // 合并评分
+            let totalScore = score + vpScore;
+
+            // 判断量价事件
+            let vpEvent = '',
+                vpLabel = '中性';
+            let vpDivergence = false;
+            if (vpScore >= 1.5 * vw) { vpLabel = '放量突破';
+                vpEvent = 'breakout'; } else if (vpScore >= 0.8 * vw) { vpLabel = '放量上涨';
+                vpEvent = 'up'; } else if (vpScore >= 0.3 * vw) { vpLabel = '温和上行';
+                vpEvent = 'up'; } else if (vpScore >= -0.3 * vw) { vpLabel = '量价中性';
+                vpEvent = ''; } else if (vpScore >= -1.0 * vw) { vpLabel = '量价滞涨';
+                vpEvent = 'stall';
+                vpDivergence = true; } else { vpLabel = '量价背离';
+                vpEvent = 'divergence';
+                vpDivergence = true; }
+
+            if (vpDivergence) totalScore -= 2;
+            else if (vpEvent === 'breakout') totalScore += 1;
+            else if (vpEvent === 'up' && vpLabel !== '温和上行') totalScore += 0.5;
+
+            // 信号分档
+            let overall, action, targetPos, confidence;
+            const ps = params.positionScale || 1.0;
+            if (totalScore >= 5) { overall = '强力买入';
+                action = '强势突破，积极跟进';
+                targetPos = 85 * ps;
+                confidence = 90; } else if (totalScore >= 3.5) { overall = '买入';
+                action = '趋势向好，分批建仓';
+                targetPos = 65 * ps;
+                confidence = 75; } else if (totalScore >= 2) { overall = '左侧试探';
+                action = '底部区域，轻仓试水';
+                targetPos = 35 * ps;
+                confidence = 55; } else if (totalScore >= 0.5) { overall = '超卖区';
+                action = '超跌反弹机会';
+                targetPos = 20 * ps;
+                confidence = 40; } else if (totalScore >= -0.5) { overall = '观望';
+                action = '等待方向明朗';
+                targetPos = 0;
+                confidence = 30; } else if (totalScore >= -2) { overall = '高空防守';
+                action = '高位滞涨，逐步减仓';
+                targetPos = 25 * ps;
+                confidence = 50; } else if (totalScore >= -3.5) { overall = '卖出';
+                action = '趋势走弱，果断减仓';
+                targetPos = 50 * ps;
+                confidence = 70; } else { overall = '强力卖出';
+                action = '全面转空，清仓避险';
+                targetPos = 75 * ps;
+                confidence = 85; }
+
+            // 量价修正
+            if (vpDivergence) {
+                if (overall === '强力买入' || overall === '买入') {
+                    overall = '高空防守';
+                    action = '量价背离，逢高减仓';
+                    targetPos = Math.min(targetPos, 30);
+                    confidence = Math.min(confidence, 50);
+                } else if (overall === '左侧试探') {
+                    overall = '观望';
+                    action = '量价背离，放弃试仓';
+                    targetPos = 0;
+                    confidence = Math.min(confidence, 30);
+                }
+            }
+
+            // 计算ATR和止损
+            const atr = calcATR(highs, lows, closes, 14);
+            const stopMult = params.stopMult || 2.0;
+            const stopLoss = Math.max(price - stopMult * atr, price * 0.92);
+
+            // 止盈目标
+            const tp1 = price + 1.5 * atr;
+            const tp2 = price + 3.0 * atr;
+            const tp3 = price + 4.5 * atr;
+
+            return {
+                date: data[n - 1].date,
+                price,
+                overall,
+                action,
+                targetPos: clamp(targetPos, 0, 100),
+                confidence: clamp(confidence, 0, 100),
+                score: totalScore,
+                trendScore: score,
+                vpScore: vpScore,
+                vpLabel,
+                vpEvent,
+                vpDivergence,
+                vpFactors,
+                stopLoss,
+                takeProfit: [tp1, tp2, tp3],
+                atr,
+                ma5,
+                ma20,
+                ma60,
+                rsi: calcRSI(closes, 14),
+                macd: calcMACD(closes),
+                kdj: calcKDJ(closes, highs, lows),
+                boll: calcBOLL(closes, 20),
+                obv: obvCurrent,
+                obvDirection: isObvUp ? 'up' : (isObvDown ? 'down' : 'neutral'),
+            };
+        }
+
+        // ================================================================
+        // 回测引擎
+        // ================================================================
+        function runBacktest(data, initialCapital, params) {
+            if (!data || data.length < 60) {
+                throw new Error('数据不足，至少需要60个交易日');
+            }
+
+            const feeRate = (params.fee || 0.10) / 100;
+            const slippage = (params.slippage || 0.05) / 100;
+
+            let cash = initialCapital;
+            let position = 0; // 持股数量
+            let equity = initialCapital;
+            let peakEquity = initialCapital;
+            let maxDrawdown = 0;
+            let maxDrawdownPct = 0;
+
+            const equityCurve = [];
+            const trades = [];
+            const signals = [];
+            let totalProfit = 0;
+            let winCount = 0,
+                lossCount = 0;
+            let winSum = 0,
+                lossSum = 0;
+
+            // 从第60个交易日开始回测
+            const startIdx = Math.min(60, Math.floor(data.length * 0.2));
+
+            for (let i = startIdx; i < data.length; i++) {
+                const slice = data.slice(0, i + 1);
+                const sig = generateSignal(slice, params);
+                if (!sig) continue;
+
+                const price = sig.price;
+                const targetPos = sig.targetPos / 100; // 目标仓位比例
+                const currentPos = position * price / (cash + position * price || 1);
+
+                // 记录信号
+                signals.push({
+                    date: sig.date,
+                    price: price,
+                    overall: sig.overall,
+                    targetPos: sig.targetPos,
+                    score: sig.score,
+                    vpScore: sig.vpScore,
+                });
+
+                // 执行交易：调整仓位到目标
+                const currentTotal = cash + position * price;
+                const targetValue = currentTotal * targetPos;
+                const targetShares = Math.floor(targetValue / price);
+                const currentShares = position;
+                const diff = targetShares - currentShares;
+
+                if (Math.abs(diff) >= 1) {
+                    const tradePrice = price * (diff > 0 ? (1 + slippage) : (1 - slippage));
+                    const tradeAmount = diff * tradePrice;
+                    const fee = Math.abs(tradeAmount) * feeRate;
+
+                    if (diff > 0) {
+                        // 买入
+                        if (tradeAmount + fee <= cash) {
+                            cash -= (tradeAmount + fee);
+                            position += diff;
+                            trades.push({
+                                date: sig.date,
+                                direction: 'buy',
+                                price: tradePrice,
+                                shares: diff,
+                                amount: tradeAmount,
+                                fee: fee,
+                                cumProfit: 0,
+                                signal: sig.overall,
+                                priceRaw: price,
+                            });
+                        }
+                    } else {
+                        // 卖出
+                        if (position >= -diff) {
+                            const profit = -tradeAmount - fee;
+                            cash += (-tradeAmount - fee);
+                            position += diff; // diff 为负数
+                            totalProfit += profit;
+                            if (profit > 0) { winCount++;
+                                winSum += profit; } else { lossCount++;
+                                lossSum += Math.abs(profit); }
+                            trades.push({
+                                date: sig.date,
+                                direction: 'sell',
+                                price: tradePrice,
+                                shares: -diff,
+                                amount: -tradeAmount,
+                                fee: fee,
+                                cumProfit: totalProfit,
+                                signal: sig.overall,
+                                priceRaw: price,
+                            });
+                        }
+                    }
+                }
+
+                // 更新净值
+                equity = cash + position * price;
+                if (equity > peakEquity) peakEquity = equity;
+                const dd = (peakEquity - equity) / peakEquity;
+                if (dd > maxDrawdownPct) {
+                    maxDrawdownPct = dd;
+                    maxDrawdown = peakEquity - equity;
+                }
+
+                equityCurve.push({
+                    date: sig.date,
+                    equity: equity,
+                    drawdown: dd,
+                    position: position,
+                    price: price,
+                });
+            }
+
+            // 计算绩效指标
+            const finalEquity = equity;
+            const totalReturn = (finalEquity - initialCapital) / initialCapital;
+            const years = (data.length - startIdx) / 252;
+            const annReturn = years > 0 ? Math.pow(1 + totalReturn, 1 / years) - 1 : 0;
+
+            // 夏普比率
+            const dailyReturns = [];
+            for (let i = 1; i < equityCurve.length; i++) {
+                dailyReturns.push((equityCurve[i].equity - equityCurve[i - 1].equity) / equityCurve[i - 1].equity);
+            }
+            let sharpe = 0,
+                sortino = 0,
+                calmar = 0;
+            if (dailyReturns.length > 1) {
+                const avgRet = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+                const stdRet = Math.sqrt(dailyReturns.reduce((s, r) => s + (r - avgRet) ** 2, 0) / (dailyReturns.length -
+                1));
+                sharpe = stdRet > 0 ? (avgRet * 252 - 0.03) / (stdRet * Math.sqrt(252)) : 0;
+                // 索提诺
+                const downside = dailyReturns.filter(r => r < 0);
+                if (downside.length > 0) {
+                    const downAvg = downside.reduce((a, b) => a + b, 0) / downside.length;
+                    const downStd = Math.sqrt(downside.reduce((s, r) => s + (r - downAvg) ** 2, 0) / (downside.length -
+                    1));
+                    sortino = downStd > 0 ? (avgRet * 252 - 0.03) / (downStd * Math.sqrt(252)) : 0;
+                }
+                calmar = maxDrawdownPct > 0 ? annReturn / maxDrawdownPct : 0;
+            }
+
+            const winRate = (winCount + lossCount) > 0 ? winCount / (winCount + lossCount) : 0;
+            const profitFactor = lossSum > 0 ? winSum / lossSum : (winSum > 0 ? 999 : 0);
+            const avgWin = winCount > 0 ? winSum / winCount : 0;
+            const avgLoss = lossCount > 0 ? lossSum / lossCount : 0;
+            const avgTrade = (winCount + lossCount) > 0 ? (winSum - lossSum) / (winCount + lossCount) : 0;
+
+            return {
+                initialCapital,
+                finalEquity,
+                totalReturn,
+                annReturn,
+                sharpe,
+                sortino,
+                calmar,
+                maxDrawdown: maxDrawdownPct,
+                maxDrawdownValue: maxDrawdown,
+                winRate,
+                profitFactor,
+                winCount,
+                lossCount,
+                avgWin,
+                avgLoss,
+                avgTrade,
+                totalTrades: trades.length,
+                equityCurve,
+                trades,
+                signals,
+                dailyReturns,
+                peakEquity,
+                years,
+            };
+        }
+
+        // ================================================================
+        // 渲染结果
+        // ================================================================
+        let equityChartInstance = null;
+        let signalChartInstance = null;
+        let distChartInstance = null;
+
+        function renderResults(result, code, name) {
+            const {
+                totalReturn,
+                annReturn,
+                sharpe,
+                sortino,
+                calmar,
+                maxDrawdown,
+                winRate,
+                profitFactor,
+                totalTrades,
+                winCount,
+                lossCount,
+                equityCurve,
+                trades,
+                signals,
+                initialCapital,
+                finalEquity,
+            } = result;
+
+            // 显示结果区
+            $('resultArea').style.display = 'block';
+            $('emptyState').style.display = 'none';
+
+            // 更新股票名称
+            $('stockNameDisplay').textContent = `${code} · ${name || code}`;
+
+            // 交易统计
+            $('tradeCount').textContent = `交易: ${totalTrades} 笔`;
+            $('tradeDetailCount').textContent = `共 ${totalTrades} 笔`;
+
+            // 指标
+            const setMetric = (id, val, cls = '', d = '') => {
+                const el = $(id);
+                if (el) {
+                    el.textContent = val;
+                    el.className = 'v' + (cls ? ' ' + cls : '');
+                    const dEl = $(id + 'D');
+                    if (dEl) dEl.textContent = d;
+                }
+            };
+            setMetric('m-totalReturn', fmtPct(totalReturn), totalReturn > 0 ? 'good' : 'bad', `最终权益 ${fmt(finalEquity)}`);
+            setMetric('m-annReturn', fmtPct(annReturn), annReturn > 0.1 ? 'good' : annReturn > 0 ? 'warn' : 'bad', '年化');
+            setMetric('m-sharpe', fmt(sharpe, 2), sharpe > 1 ? 'good' : sharpe > 0 ? 'warn' : 'bad', sharpe > 1 ? '优秀' :
+                sharpe > 0.5 ? '良好' : '一般');
+            setMetric('m-maxDrawdown', fmtPct(maxDrawdown), maxDrawdown > 0.2 ? 'bad' : maxDrawdown > 0.1 ? 'warn' : 'good',
+                `回撤 ${fmt(maxDrawdown * 100, 1)}%`);
+            setMetric('m-winRate', fmtPct(winRate), winRate > 0.55 ? 'good' : winRate > 0.45 ? 'warn' : 'bad',
+                `${winCount}胜 / ${lossCount}负`);
+            setMetric('m-profitFactor', fmt(profitFactor, 2), profitFactor > 1.5 ? 'good' : profitFactor > 1 ? 'warn' :
+                'bad', profitFactor > 1 ? '正期望' : '负期望');
+            setMetric('m-calmar', fmt(calmar, 2), calmar > 1 ? 'good' : calmar > 0.5 ? 'warn' : 'bad', '收益/回撤');
+            setMetric('m-sortino', fmt(sortino, 2), sortino > 1.5 ? 'good' : sortino > 0.5 ? 'warn' : 'bad', '下行风险调整');
+
+            // 图表
+            renderEquityChart(equityCurve, trades, signals);
+            renderSignalChart(equityCurve, trades, signals);
+            renderSignalDistChart(signals);
+            renderTradeTable(trades);
+            $('chartSub').textContent = `${equityCurve.length} 个交易日 · ${trades.length} 笔交易`;
+        }
+
+        function renderEquityChart(equityCurve, trades, signals) {
+            const dom = $('equityChart');
+            if (!equityChartInstance) {
+                equityChartInstance = echarts.init(dom);
+            }
+            const dates = equityCurve.map(d => d.date);
+            const equityData = equityCurve.map(d => d.equity);
+            const drawdownData = equityCurve.map(d => d.drawdown * 100);
+
+            // 买卖点标注
+            const buyPoints = trades.filter(t => t.direction === 'buy').map(t => ({
+                date: t.date,
+                price: t.priceRaw,
+                value: t.priceRaw,
+            }));
+            const sellPoints = trades.filter(t => t.direction === 'sell').map(t => ({
+                date: t.date,
+                price: t.priceRaw,
+                value: t.priceRaw,
+            }));
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' },
+                    formatter: function(params) {
+                        let s = `<b>${params[0].axisValue}</b><br/>`;
+                        params.forEach(p => {
+                            if (p.seriesName) {
+                                s += `${p.seriesName}: ${p.value.toFixed(2)}<br/>`;
+                            }
+                        });
+                        return s;
+                    }
+                },
+                legend: { data: ['净值', '回撤', '买入', '卖出'], bottom: 0, left: 'center', icon: 'circle', itemWidth: 8 },
+                grid: { left: 50, right: 20, top: 30, bottom: 50 },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLabel: { rotate: 30, fontSize: 10, interval: Math.floor(dates.length / 30) },
+                    splitLine: { show: false },
+                },
+                yAxis: [{
+                    type: 'value',
+                    name: '净值',
+                    nameTextStyle: { fontSize: 10 },
+                    splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
+                    axisLabel: { fontSize: 10 },
+                }, {
+                    type: 'value',
+                    name: '回撤 %',
+                    nameTextStyle: { fontSize: 10 },
+                    splitLine: { show: false },
+                    axisLabel: { fontSize: 10, color: '#e53e3e' },
+                    min: 0,
+                    max: Math.max(5, Math.ceil(Math.max(...drawdownData) * 1.3)),
+                }],
+                series: [{
+                    name: '净值',
+                    type: 'line',
+                    data: equityData,
+                    smooth: true,
+                    lineStyle: { color: '#3182ce', width: 2 },
+                    areaStyle: { color: 'rgba(49,130,206,0.08)' },
+                    symbol: 'none',
+                }, {
+                    name: '回撤',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: drawdownData,
+                    smooth: true,
+                    lineStyle: { color: '#e53e3e', width: 1.5, type: 'dashed' },
+                    symbol: 'none',
+                    areaStyle: { color: 'rgba(229,62,62,0.08)' },
+                }, {
+                    name: '买入',
+                    type: 'scatter',
+                    data: buyPoints.map(p => [p.date, p.value]),
+                    symbol: 'triangle',
+                    symbolSize: 12,
+                    itemStyle: { color: '#e53e3e' },
+                    label: { show: false },
+                }, {
+                    name: '卖出',
+                    type: 'scatter',
+                    data: sellPoints.map(p => [p.date, p.value]),
+                    symbol: 'diamond',
+                    symbolSize: 12,
+                    itemStyle: { color: '#38a169' },
+                    label: { show: false },
+                }]
+            };
+            equityChartInstance.setOption(option, true);
+            equityChartInstance.resize();
+        }
+
+        function renderSignalChart(equityCurve, trades, signals) {
+            const dom = $('signalChart');
+            if (!signalChartInstance) {
+                signalChartInstance = echarts.init(dom);
+            }
+            const dates = equityCurve.map(d => d.date);
+            const prices = equityCurve.map(d => d.price);
+
+            // 信号等级映射
+            const signalLevel = {
+                '强力买入': 4,
+                '买入': 3,
+                '左侧试探': 2,
+                '超卖区': 1,
+                '观望': 0,
+                '高空防守': -1,
+                '卖出': -2,
+                '强力卖出': -3,
+            };
+            const signalData = signals.map(s => ({
+                date: s.date,
+                value: signalLevel[s.overall] || 0,
+                label: s.overall,
+            }));
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        const p = params[0];
+                        const idx = p.dataIndex;
+                        if (idx < signalData.length) {
+                            const s = signalData[idx];
+                            return `<b>${s.date}</b><br/>信号: ${s.label}<br/>评分: ${signals[idx].score.toFixed(2)}`;
+                        }
+                        return '';
+                    }
+                },
+                legend: { data: ['价格', '信号强度'], bottom: 0, left: 'center', icon: 'circle', itemWidth: 8 },
+                grid: { left: 50, right: 20, top: 20, bottom: 40 },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLabel: { rotate: 30, fontSize: 10, interval: Math.floor(dates.length / 30) },
+                    splitLine: { show: false },
+                },
+                yAxis: [{
+                    type: 'value',
+                    name: '价格',
+                    nameTextStyle: { fontSize: 10 },
+                    splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
+                    axisLabel: { fontSize: 10 },
+                }, {
+                    type: 'value',
+                    name: '信号',
+                    nameTextStyle: { fontSize: 10 },
+                    splitLine: { show: false },
+                    axisLabel: { fontSize: 10 },
+                    min: -4,
+                    max: 5,
+                }],
+                series: [{
+                    name: '价格',
+                    type: 'line',
+                    data: prices,
+                    smooth: true,
+                    lineStyle: { color: '#718096', width: 1.5 },
+                    symbol: 'none',
+                }, {
+                    name: '信号强度',
+                    type: 'bar',
+                    yAxisIndex: 1,
+                    data: signalData.map(d => d.value),
+                    barWidth: '60%',
+                    itemStyle: {
+                        color: function(params) {
+                            const v = params.value;
+                            if (v >= 3) return '#e53e3e';
+                            if (v >= 1) return '#ed8936';
+                            if (v >= 0) return '#a0aec0';
+                            if (v >= -1) return '#48bb78';
+                            return '#38a169';
+                        },
+                        borderRadius: [2, 2, 0, 0],
+                    },
+                }]
+            };
+            signalChartInstance.setOption(option, true);
+            signalChartInstance.resize();
+        }
+
+        function renderSignalDistChart(signals) {
+            const dom = $('signalDistChart');
+            if (!distChartInstance) {
+                distChartInstance = echarts.init(dom);
+            }
+            const counts = {};
+            signals.forEach(s => {
+                counts[s.overall] = (counts[s.overall] || 0) + 1;
+            });
+            const sorted = ['强力买入', '买入', '左侧试探', '超卖区', '观望', '高空防守', '卖出', '强力卖出'];
+            const data = sorted.filter(k => counts[k]).map(k => ({ name: k, value: counts[k] }));
+            const colors = ['#e53e3e', '#ed8936', '#f6ad55', '#ecc94b', '#a0aec0', '#48bb78', '#38a169', '#276749'];
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)',
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: { fontSize: 10 },
+                    itemWidth: 12,
+                    itemHeight: 12,
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['45%', '50%'],
+                    data: data,
+                    itemStyle: {
+                        borderRadius: 4,
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{b}\n{d}%',
+                        fontSize: 9,
+                        lineHeight: 14,
+                    },
+                    labelLine: { length: 6, length2: 8 },
+                    color: colors.slice(0, data.length),
+                }]
+            };
+            distChartInstance.setOption(option, true);
+            distChartInstance.resize();
+        }
+
+        function renderTradeTable(trades) {
+            const tbody = $('tradeTableBody');
+            if (!trades || trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-mute);">暂无交易</td></tr>';
+                return;
+            }
+            let html = '';
+            let cumProfit = 0;
+            trades.forEach(t => {
+                cumProfit += t.cumProfit || 0;
+                const isBuy = t.direction === 'buy';
+                const cls = isBuy ? 'buy' : 'sell';
+                const sign = isBuy ? '买入' : '卖出';
+                const profitCls = cumProfit > 0 ? 'profit' : (cumProfit < 0 ? 'loss' : '');
+                html += `<tr>
+                    <td>${t.date}</td>
+                    <td class="${cls}">${sign}</td>
+                    <td>${fmt(t.priceRaw, 2)}</td>
+                    <td>${t.shares}</td>
+                    <td>${fmt(t.amount, 0)}</td>
+                    <td class="${profitCls}">${cumProfit > 0 ? '+' : ''}${fmt(cumProfit, 0)}</td>
+                    <td><span class="tag ${isBuy ? 'buy' : 'sell'}">${t.signal}</span></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // ================================================================
+        // 主流程
+        // ================================================================
+        let isRunning = false;
+
+        async function runBacktestFlow() {
+            if (isRunning) return;
+            isRunning = true;
+            const btn = $('btnRunBacktest');
+            btn.disabled = true;
+            btn.textContent = '⏳ 运行中...';
+
+            try {
+                const code = $('stockCode').value.trim();
+                if (!code) { toast('请输入股票代码'); return; }
+
+                const startDate = $('startDate').value;
+                const endDate = $('endDate').value || new Date().toISOString().slice(0, 10);
+                const initialCapital = parseFloat($('initialCapital').value) || 100000;
+
+                // 读取参数
+                const params = {
+                    trendWeight: parseFloat($('paramTrendWeight').value) || 1.0,
+                    vpWeight: parseFloat($('paramVpWeight').value) || 1.0,
+                    positionScale: parseFloat($('paramPositionScale').value) || 1.0,
+                    stopMult: parseFloat($('paramStopMult').value) || 2.0,
+                    fee: parseFloat($('paramFee').value) || 0.10,
+                    slippage: parseFloat($('paramSlippage').value) || 0.05,
+                };
+
+                // 显示状态
+                $('statusArea').style.display = 'block';
+                $('statusText').innerHTML = `📡 正在获取 <b>${code}</b> 的K线数据...`;
+
+                // 获取数据
+                const rawData = await fetchKLine(code, 600);
+                if (!rawData || rawData.length < 60) {
+                    throw new Error(`数据不足，仅获取到 ${rawData?.length || 0} 条`);
+                }
+
+                // 日期过滤
+                let filtered = rawData;
+                if (startDate) {
+                    filtered = filtered.filter(d => d.date >= startDate);
+                }
+                if (endDate) {
+                    filtered = filtered.filter(d => d.date <= endDate);
+                }
+                if (filtered.length < 60) {
+                    throw new Error(`筛选后数据不足60条，请调整日期范围`);
+                }
+
+                $('statusText').innerHTML = `📊 数据加载完成 (${filtered.length} 个交易日)，正在回测...`;
+
+                // 运行回测
+                const result = runBacktest(filtered, initialCapital, params);
+
+                $('statusText').innerHTML =
+                    `✅ 回测完成！总收益率 <b>${fmtPct(result.totalReturn)}</b>，交易 <b>${result.totalTrades}</b> 笔`;
+
+                // 渲染结果
+                renderResults(result, code, code);
+
+                // 更新数据状态
+                $('dataStatus').textContent = `✅ ${filtered.length} 日 · ${result.totalTrades}笔`;
+
+                toast(`回测完成！收益率 ${fmtPct(result.totalReturn)}`);
+
+            } catch (err) {
+                toast('❌ ' + err.message);
+                $('statusText').innerHTML = `❌ 错误: ${err.message}`;
+                console.error(err);
+            } finally {
+                isRunning = false;
+                btn.disabled = false;
+                btn.textContent = '▶ 运行回测';
+            }
+        }
+
+        // ================================================================
+        // 事件绑定
+        // ================================================================
+        function init() {
+            // 设置默认结束日期为今天
+            const today = new Date().toISOString().slice(0, 10);
+            if (!$('endDate').value) $('endDate').value = today;
+            // 默认开始日期为1年前
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+            if (!$('startDate').value) $('startDate').value = oneYearAgo.toISOString().slice(0, 10);
+
+            // 运行按钮
+            $('btnRunBacktest').addEventListener('click', runBacktestFlow);
+
+            // 回车触发
+            $('stockCode').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') runBacktestFlow();
+            });
+
+            // 参数折叠
+            $('btnToggleParams').addEventListener('click', () => {
+                const panel = $('paramPanel');
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                $('btnToggleParams').textContent = panel.style.display === 'none' ? '📐 参数' : '📐 收起参数';
+            });
+
+            // 参数滑块实时更新
+            const bindSlider = (id, valId, fmtFn = v => v) => {
+                const input = $(id);
+                const valEl = $(valId);
+                if (input && valEl) {
+                    input.addEventListener('input', () => {
+                        valEl.textContent = fmtFn(input.value);
+                    });
+                }
+            };
+            bindSlider('paramTrendWeight', 'paramTrendWeightVal');
+            bindSlider('paramVpWeight', 'paramVpWeightVal');
+            bindSlider('paramPositionScale', 'paramPositionScaleVal');
+            bindSlider('paramStopMult', 'paramStopMultVal');
+            bindSlider('paramFee', 'paramFeeVal', v => fmt(v, 2) + '%');
+            bindSlider('paramSlippage', 'paramSlippageVal', v => fmt(v, 2) + '%');
+
+            // 窗口resize重绘图表
+            window.addEventListener('resize', () => {
+                if (equityChartInstance) equityChartInstance.resize();
+                if (signalChartInstance) signalChartInstance.resize();
+                if (distChartInstance) distChartInstance.resize();
+            });
+
+            // 示例快速填充
+            const codeInput = $('stockCode');
+            codeInput.addEventListener('focus', function() {
+                if (this.value === '000001') this.select();
+            });
+
+            // 预置示例（双击代码框填充示例）
+            codeInput.addEventListener('dblclick', function() {
+                const examples = ['000001', '600519', '000858', '600036', '002594'];
+                const current = this.value;
+                let next = examples.find(e => e !== current) || examples[0];
+                this.value = next;
+                toast(`切换到 ${next}`);
+            });
+
+            console.log('📊 量化回测工具已启动');
+            console.log('💡 双击股票代码框切换示例');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
